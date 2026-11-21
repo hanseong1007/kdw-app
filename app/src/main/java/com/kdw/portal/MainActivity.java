@@ -1,6 +1,8 @@
 package com.kdw.portal;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
@@ -178,6 +180,7 @@ public class MainActivity extends Activity {
     // WebView 설정
     // ------------------------------------------------------------------
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void setupWebView() {
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -623,6 +626,7 @@ public class MainActivity extends Activity {
         writeToDownloadsLegacy(fileName, mime, data);
     }
 
+    @TargetApi(Build.VERSION_CODES.Q)
     private void writeToDownloadsMediaStore(String name, String mime, byte[] data) throws IOException {
         ContentValues values = new ContentValues();
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
