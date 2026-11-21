@@ -13,6 +13,17 @@ android {
         versionName '1.0.0'
     }
 
+    // 빌드마다 서명 키가 바뀌면 새 APK 가 이전 앱 위에 설치되지 않습니다
+    // (설치되어 있던 발주·근태 기록도 지워집니다). 그래서 서명 키를 저장소에 고정해 두었습니다.
+    signingConfigs {
+        kdw {
+            storeFile rootProject.file('keystore/kdw.jks')
+            storePassword 'kdwapp2026'
+            keyAlias 'kdw'
+            keyPassword 'kdwapp2026'
+        }
+    }
+
     flavorDimensions 'app'
 
     productFlavors {
@@ -35,12 +46,13 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
+            signingConfig signingConfigs.kdw
         }
         release {
-            // 배포용 키가 아직 없으므로 debug 키로 서명합니다(설치만 되면 되는 사내용).
-            // 나중에 정식 키를 만들면 signingConfigs 를 추가하고 이 줄을 바꾸면 됩니다.
+            // 사내 배포용이라 debug 와 같은 고정 키로 서명합니다.
+            // 나중에 정식 키를 만들면 signingConfigs.kdw 를 새 키로 바꾸면 됩니다.
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.kdw
         }
     }
 

@@ -98,6 +98,8 @@ python3 tools/make_icons.py   # Pillow 필요
   (앱 안에서 열 도메인)
 - **버전** — `defaultConfig` 의 `versionCode` / `versionName`
 - **권한 문구·색** — `app/src/main/res/values/`
-- **정식 서명** — 지금은 설치만 되면 되도록 debug 키로 서명합니다. 배포용 키를 만들면
-  `signingConfigs` 를 추가하고 `buildTypes.release.signingConfig` 를 바꿔 주세요.
-  (키를 바꾸면 기존 앱을 지우고 다시 설치해야 합니다.)
+- **서명 키** — `keystore/kdw.jks` (별명 `kdw`, 암호 `kdwapp2026`) 로 서명합니다.
+  빌드마다 키가 바뀌면 새 APK 가 이전 앱 위에 설치되지 않고(설치되어 있던 발주·근태 기록도 함께 지워집니다)
+  "앱이 설치되지 않았습니다" 가 뜨므로, 서명 키를 저장소에 고정해 두었습니다.
+  나중에 정식 키로 바꾸려면 `app/build.gradle` 의 `signingConfigs.kdw` 만 새 키로 바꾸면 됩니다.
+  (키를 바꾼 뒤에는 기존 앱을 지우고 다시 설치해야 합니다.)
