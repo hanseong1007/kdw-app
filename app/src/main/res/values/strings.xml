@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- flavor(portal/worklog)가 resValue 로 덮어씁니다. 여기 값은 기본값입니다. -->
+    <string name="app_name">경덕농수산</string>
+    <string name="start_url">https://hanseong1007.github.io/</string>
+</resources>

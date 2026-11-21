@@ -1,0 +1,96 @@
+name: Build APK
+
+# main 에 올리거나, Actions 화면에서 직접 실행하면
+# 통합 포털·업무일지 두 개의 APK를 만들어 Artifact 와 Release(latest)에 올립니다.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: APK 빌드 (portal · worklog)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 저장소 받기
+        uses: actions/checkout@v4
+
+      - name: JDK 17 준비
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Gradle 8.7 준비
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: 빌드 도구 확인
+        run: |
+          set -euo pipefail
+          if [ -x ./gradlew ]; then echo "gradlew 사용"; else echo "gradle 사용: $(command -v gradle)"; fi
+          gradle --version
+
+      - name: debug APK 빌드 (두 flavor)
+        run: |
+          set -euo pipefail
+          if [ -x ./gradlew ]; then
+            ./gradlew assembleDebug --stacktrace --no-daemon
+          else
+            gradle assembleDebug --stacktrace --no-daemon
+          fi
+
+      - name: APK 이름 정리
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          ls -l app/build/outputs/apk/portal/debug app/build/outputs/apk/worklog/debug
+          cp app/build/outputs/apk/portal/debug/app-portal-debug.apk  "out/경덕농수산-포털.apk"
+          cp app/build/outputs/apk/worklog/debug/app-worklog-debug.apk "out/경덕농수산-업무일지.apk"
+          # 링크가 깨지지 않도록 영문 이름 사본도 함께 올립니다.
+          cp "out/경덕농수산-포털.apk"    out/kdw-portal.apk
+          cp "out/경덕농수산-업무일지.apk" out/kdw-worklog.apk
+          ls -lh out
+
+      - name: Artifact 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdw-apk
+          path: out/*.apk
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Release(latest) 업로드
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: 경덕농수산 앱 (최신 빌드)
+          body: |
+            자동으로 빌드된 APK입니다. 아래 파일을 눌러 바로 내려받아 설치하세요.
+
+            - **경덕농수산-포털.apk** — 통합 포털(발주화면 · 업무일지 · 근태)
+            - **경덕농수산-업무일지.apk** — 업무일지 전용
+
+            두 앱은 패키지가 달라 한 휴대폰에 같이 설치할 수 있습니다.
+            설치할 때 "출처를 알 수 없는 앱 허용"을 한 번 켜 주세요.
+          files: |
+            out/경덕농수산-포털.apk
+            out/경덕농수산-업무일지.apk
+            out/kdw-portal.apk
+            out/kdw-worklog.apk
+          fail_on_unmatched_files: true
+          overwrite_files: true
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
