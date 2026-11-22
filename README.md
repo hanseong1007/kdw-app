@@ -35,7 +35,7 @@ PC에서는 **더블클릭 한 번**으로 여는 실행파일을 씁니다. 설
   (한글 이름 사본 `경덕농수산-통합포털.exe` — 같은 파일)
 - 처음 실행할 때 "Windows의 PC 보호" 창이 뜨면 `추가 정보` → `실행` 을 한 번 눌러 주세요(서명 없는 파일이라 그렇습니다).
 - Edge(없으면 Chrome)의 앱 모드로 열려 **주소창·탭 없는 앱 창**이 뜨고, 브라우저에 로그인해 둔 상태를 그대로 씁니다.
-- 소스·빌드 방법: [`pc-launcher/`](pc-launcher/README.md) · 자동 빌드 `.github/workflows/build-pc-exe.yml` (Release `pc-latest`)
+- 소스·빌드 방법: [`pc-launcher/`](pc-launcher/README.md) · 자동 빌드 `.github/workflows/build-pc-exe.yml` (Release `latest`)
 
 ## 앱이 해 주는 일
 

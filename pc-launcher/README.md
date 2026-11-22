@@ -27,7 +27,7 @@ Windows 10/11(64비트)에서 **더블클릭 한 번**으로 통합 포털을 �
 ### 자동 (GitHub Actions)
 
 `pc-launcher/` 를 고쳐 `main` 에 올리면 `.github/workflows/build-pc-exe.yml` 이
-`windows-latest` 에서 빌드해 Release **`pc-latest`** 에 올립니다. Actions 화면에서 수동 실행도 됩니다.
+`windows-latest` 에서 빌드해 Release **`latest`** 에 올립니다. Actions 화면에서 수동 실행도 됩니다.
 
 ### 내 컴퓨터에서 (크로스 컴파일도 가능)
 
