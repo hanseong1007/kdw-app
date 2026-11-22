@@ -1,7 +1,7 @@
 name: PC 실행파일(.exe) 빌드
 
-# 경덕농수산 통합포털 Windows 실행파일을 만들어 Release(pc-latest)에 올린다.
-#   받는 곳: https://github.com/hanseong1007/kdw-app/releases/tag/pc-latest
+# 경덕농수산 통합포털 Windows 실행파일을 만들어 Release(latest)에 올린다.
+#   받는 곳: https://github.com/hanseong1007/kdw-app/releases/tag/latest
 #   트리거 : pc-launcher/ 를 고쳐 main 에 올리면 자동, Actions 화면에서 수동 실행도 가능
 on:
   push:
@@ -47,7 +47,7 @@ jobs:
           Get-Item ../kdw-portal.exe | Select-Object Name, Length
           (Get-FileHash ../kdw-portal.exe -Algorithm SHA256).Hash
 
-      - name: Release(pc-latest)에 올리기
+      - name: Release(latest)에 올리기
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
@@ -61,12 +61,12 @@ jobs:
           - 서명이 없는 파일이라 처음 실행할 때 "Windows의 PC 보호" 창이 뜰 수 있습니다.
             [추가 정보] → [실행] 을 한 번 눌러 주세요.
           "@
-          gh release view pc-latest --repo $env:GITHUB_REPOSITORY 2>$null
+          gh release view latest --repo $env:GITHUB_REPOSITORY 2>$null
           if ($LASTEXITCODE -ne 0) {
-            gh release create pc-latest --repo $env:GITHUB_REPOSITORY --title "경덕농수산 통합포털 PC 앱 (.exe · 최신)" --notes $note
+            gh release create latest --repo $env:GITHUB_REPOSITORY --title "경덕농수산 통합포털 PC 앱 (.exe · 최신)" --notes $note
           }
-          gh release upload pc-latest kdw-portal.exe "경덕농수산-통합포털.exe" --clobber --repo $env:GITHUB_REPOSITORY
-          gh release view pc-latest --repo $env:GITHUB_REPOSITORY --json assets --jq '.assets[] | "\(.name) \(.size) bytes"'
+          gh release upload latest kdw-portal.exe "경덕농수산-통합포털.exe" --clobber --repo $env:GITHUB_REPOSITORY
+          gh release view latest --repo $env:GITHUB_REPOSITORY --json assets --jq '.assets[] | "\(.name) \(.size) bytes"'
 
       - name: Artifact 로도 남기기
         uses: actions/upload-artifact@v4
