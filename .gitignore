@@ -10,3 +10,8 @@
 local.properties
 app/build/
 out/
+
+# PC 런처 빌드 산출물
+/pc-launcher/*.syso
+/pc-launcher/kdw-portal.exe
+/kdw-portal.exe

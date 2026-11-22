@@ -27,6 +27,16 @@ title: "경덕농수산 안드로이드 앱 (통합 포털 · 업무일지)"
 - Actions 실행 기록의 Artifact `kdw-apk` 에서도 받을 수 있습니다.
 - 설치할 때 "출처를 알 수 없는 앱 허용"(또는 "이 출처 허용")을 한 번 켜 주세요.
 
+## PC 실행파일 (.exe · Windows)
+
+PC에서는 **더블클릭 한 번**으로 여는 실행파일을 씁니다. 설치 과정이 없습니다.
+
+- 최신 실행파일: <https://github.com/hanseong1007/kdw-app/releases/latest/download/kdw-portal.exe>
+  (한글 이름 사본 `경덕농수산-통합포털.exe` — 같은 파일)
+- 처음 실행할 때 "Windows의 PC 보호" 창이 뜨면 `추가 정보` → `실행` 을 한 번 눌러 주세요(서명 없는 파일이라 그렇습니다).
+- Edge(없으면 Chrome)의 앱 모드로 열려 **주소창·탭 없는 앱 창**이 뜨고, 브라우저에 로그인해 둔 상태를 그대로 씁니다.
+- 소스·빌드 방법: [`pc-launcher/`](pc-launcher/README.md) · 자동 빌드 `.github/workflows/build-pc-exe.yml` (Release `pc-latest`)
+
 ## 앱이 해 주는 일
 
 웹에서 되던 기능이 앱에서도 그대로 되도록 WebView 에 다음을 붙였습니다.
