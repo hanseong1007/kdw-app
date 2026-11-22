@@ -1,0 +1,76 @@
+name: PC 실행파일(.exe) 빌드
+
+# 경덕농수산 통합포털 Windows 실행파일을 만들어 Release(pc-latest)에 올린다.
+#   받는 곳: https://github.com/hanseong1007/kdw-app/releases/tag/pc-latest
+#   트리거 : pc-launcher/ 를 고쳐 main 에 올리면 자동, Actions 화면에서 수동 실행도 가능
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pc-launcher/**'
+      - '.github/workflows/build-pc-exe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write          # Release 업로드
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: 소스 받기
+        uses: actions/checkout@v4
+
+      - name: Go 준비
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache: false
+
+      - name: 아이콘·버전 정보 넣기(.syso)
+        working-directory: pc-launcher
+        run: |
+          go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
+          goversioninfo -icon=assets/kdw-portal.ico -o=resource_windows_amd64.syso versioninfo.json
+          dir resource_windows_amd64.syso
+
+      - name: 빌드 (Go · 콘솔 창 없음 · 64비트)
+        working-directory: pc-launcher
+        shell: pwsh
+        run: |
+          $env:GOOS = 'windows'
+          $env:GOARCH = 'amd64'
+          $env:CGO_ENABLED = '0'
+          go vet ./...
+          go build -trimpath -buildvcs=false -ldflags "-s -w -H=windowsgui" -o ../kdw-portal.exe .
+          Copy-Item ../kdw-portal.exe '../경덕농수산-통합포털.exe'
+          Get-Item ../kdw-portal.exe | Select-Object Name, Length
+          (Get-FileHash ../kdw-portal.exe -Algorithm SHA256).Hash
+
+      - name: Release(pc-latest)에 올리기
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $note = @"
+          경덕농수산 통합포털 PC 실행파일 (Windows 10/11 64비트)
+
+          - 받은 exe 를 바탕화면에 두고 더블클릭하면 주소창 없는 앱 창으로 포털이 열립니다.
+          - Microsoft Edge(또는 Chrome)의 앱 모드를 씁니다. 둘 다 없으면 기본 브라우저로 엽니다.
+          - 설치 과정이 없고, 지우려면 파일만 삭제하면 됩니다.
+          - 서명이 없는 파일이라 처음 실행할 때 "Windows의 PC 보호" 창이 뜰 수 있습니다.
+            [추가 정보] → [실행] 을 한 번 눌러 주세요.
+          "@
+          gh release view pc-latest --repo $env:GITHUB_REPOSITORY 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create pc-latest --repo $env:GITHUB_REPOSITORY --title "경덕농수산 통합포털 PC 앱 (.exe · 최신)" --notes $note
+          }
+          gh release upload pc-latest kdw-portal.exe "경덕농수산-통합포털.exe" --clobber --repo $env:GITHUB_REPOSITORY
+          gh release view pc-latest --repo $env:GITHUB_REPOSITORY --json assets --jq '.assets[] | "\(.name) \(.size) bytes"'
+
+      - name: Artifact 로도 남기기
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdw-portal-exe
+          path: kdw-portal.exe
+          if-no-files-found: error
