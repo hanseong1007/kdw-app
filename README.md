@@ -34,7 +34,7 @@ PC에서는 **더블클릭 한 번**으로 여는 실행파일을 씁니다. 설
 - 최신 실행파일: <https://github.com/hanseong1007/kdw-app/releases/latest/download/kdw-portal.exe>
   (받은 뒤 이름을 `경덕농수산-통합포털.exe` 처럼 바꿔 두셔도 됩니다)
 - 처음 실행할 때 "Windows의 PC 보호" 창이 뜨면 `추가 정보` → `실행` 을 한 번 눌러 주세요(서명 없는 파일이라 그렇습니다).
-- Edge(없으면 Chrome)의 앱 모드로 열려 **주소창·탭 없는 앱 창**이 뜨고, 브라우저에 로그인해 둔 상태를 그대로 씁니다.
+- **Chrome 이 설치돼 있으면 크롬 일반 탭**으로 열려, 포털 안의 쿠팡윙·롯데택배 링크를 눌렀을 때 크롬에 로그인해 둔 프로필·쿠키를 그대로 씁니다(크롬이 없으면 Windows 기본 브라우저).
 - 소스·빌드 방법: [`pc-launcher/`](pc-launcher/README.md) · 자동 빌드 `.github/workflows/build-pc-exe.yml` (Release `latest`)
 
 ## 앱이 해 주는 일

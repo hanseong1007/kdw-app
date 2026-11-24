@@ -1,13 +1,14 @@
 // 경덕농수산 통합포털 — PC 실행파일(.exe) 런처
 //
-// 더블클릭하면 주소창·탭 없는 전용 앱 창으로 포털(https://hanseong1007.github.io/)을 연다.
+// 더블클릭하면 통합포털(https://hanseong1007.github.io/)을 연다.
 //
-//  1) 설치된 Microsoft Edge 를 `--app=` 모드로 실행 (가장 흔함 · Windows 기본 브라우저)
-//  2) 없으면 Google Chrome 을 `--app=` 모드로 실행
-//  3) 둘 다 없으면 기본 브라우저로 연다
+//  1) Google Chrome 이 설치돼 있으면 크롬의 **일반 탭(새 창)** 으로 연다.
+//     — 주소창 없는 --app 창이 아니라 일반 창이라, 포털 안의 쿠팡윙·롯데택배 같은
+//     링크를 눌렀을 때 이미 로그인해 둔 크롬 프로필·쿠키가 그대로 살아 있다.
+//  2) 크롬이 없으면 Windows 기본 브라우저로 연다(rundll32 url.dll,FileProtocolHandler).
 //
 // Go 표준 라이브러리만 쓴다(외부 런타임·.NET·WebView2 설치 불필요, 파일 하나로 동작).
-// 빌드: GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o kdw-portal.exe .
+// 빌드: GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -H=windowsgui" -o kdw-portal.exe .
 package main
 
 import (
@@ -19,9 +20,6 @@ import (
 )
 
 const portalURL = "https://hanseong1007.github.io/"
-
-// 앱 창 크기(픽셀). 화면이 작으면 Windows 가 알아서 줄인다.
-const appWindow = "--window-size=1240,880"
 
 const (
 	createNewProcessGroup = 0x00000200 // CREATE_NEW_PROCESS_GROUP
@@ -37,38 +35,39 @@ func main() {
 		}
 	}
 
-	appArg := "--app=" + target
-	if exe := findChromium(); exe != "" {
-		if startDetached(exe, appArg, appWindow, "--no-first-run", "--no-default-browser-check") {
+	// 1) 크롬이 있으면 크롬 일반 탭으로. (프로필·쿠키·확장프로그램 그대로)
+	if exe := findChrome(); exe != "" {
+		if startDetached(exe, target) {
 			return
 		}
 	}
+
+	// 2) 크롬이 없을 때만 Windows 기본 브라우저로.
 	if openWithDefaultBrowser(target) {
 		return
 	}
 	msgBox("경덕농수산 통합포털",
-		"브라우저를 찾지 못했습니다.\n\nMicrosoft Edge 또는 Google Chrome 을 설치한 뒤 다시 실행해 주세요.")
+		"브라우저를 찾지 못했습니다.\n\nGoogle Chrome 을 설치한 뒤 다시 실행해 주세요.\n(설치가 어려우면 Edge 등 기본 브라우저로 여세요.)")
 }
 
-// findChromium 은 Edge → Chrome 순서로 실행 파일을 찾는다.
-func findChromium() string {
-	for _, p := range browserPaths() {
+// findChrome 은 chrome.exe 를 찾는다. 설치 경로 → PATH 순서.
+func findChrome() string {
+	for _, p := range chromePaths() {
 		if fi, err := os.Stat(p); err == nil && !fi.IsDir() {
 			return p
 		}
 	}
-	for _, name := range []string{"msedge.exe", "chrome.exe"} {
-		if p, err := exec.LookPath(name); err == nil {
-			return p
-		}
+	if p, err := exec.LookPath("chrome.exe"); err == nil {
+		return p
 	}
 	return ""
 }
 
-func browserPaths() []string {
-	pf := os.Getenv("ProgramFiles")
-	pf86 := os.Getenv("ProgramFiles(x86)")
-	local := os.Getenv("LOCALAPPDATA")
+func chromePaths() []string {
+	pf := os.Getenv("ProgramFiles")         // 보통 C:\Program Files
+	pf86 := os.Getenv("ProgramFiles(x86)")  // 보통 C:\Program Files (x86) — 32비트 크롬
+	w6432 := os.Getenv("ProgramW6432")      // 32비트 프로세스에서도 64비트 폴더
+	local := os.Getenv("LOCALAPPDATA")      // 사용자 설치(%LocalAppData%)
 
 	join := func(base string, parts ...string) string {
 		if base == "" {
@@ -78,16 +77,14 @@ func browserPaths() []string {
 	}
 
 	return []string{
-		// Microsoft Edge (Windows 10/11 기본 설치)
-		join(pf86, "Microsoft", "Edge", "Application", "msedge.exe"),
-		join(pf, "Microsoft", "Edge", "Application", "msedge.exe"),
-		join(local, "Microsoft", "Edge", "Application", "msedge.exe"),
-		// Google Chrome
+		// 정식 크롬 — 64비트 설치 → 32비트 설치 → 사용자 설치
 		join(pf, "Google", "Chrome", "Application", "chrome.exe"),
 		join(pf86, "Google", "Chrome", "Application", "chrome.exe"),
 		join(local, "Google", "Chrome", "Application", "chrome.exe"),
-		// Chrome 변형(설치돼 있으면 같이)
+		join(w6432, "Google", "Chrome", "Application", "chrome.exe"),
+		// 크롬 베타·카나리(정식이 없을 때만)
 		join(pf, "Google", "Chrome Beta", "Application", "chrome.exe"),
+		join(pf86, "Google", "Chrome Beta", "Application", "chrome.exe"),
 		join(local, "Google", "Chrome SxS", "Application", "chrome.exe"),
 	}
 }
@@ -106,7 +103,7 @@ func startDetached(exe string, args ...string) bool {
 	return true
 }
 
-// openWithDefaultBrowser 는 Edge·Chrome 을 못 찾았을 때의 마지막 방법.
+// openWithDefaultBrowser 는 크롬을 못 찾았을 때의 마지막 방법.
 func openWithDefaultBrowser(url string) bool {
 	cmd := exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}

@@ -1,7 +1,17 @@
 {
   "FixedFileInfo": {
-    "FileVersion": { "Major": 1, "Minor": 0, "Patch": 0, "Build": 0 },
-    "ProductVersion": { "Major": 1, "Minor": 0, "Patch": 0, "Build": 0 },
+    "FileVersion": {
+      "Major": 1,
+      "Minor": 1,
+      "Patch": 0,
+      "Build": 0
+    },
+    "ProductVersion": {
+      "Major": 1,
+      "Minor": 1,
+      "Patch": 0,
+      "Build": 0
+    },
     "FileFlagsMask": "63",
     "FileFlags": "0",
     "FileOS": "262148",
@@ -12,14 +22,17 @@
     "Comments": "경덕농수산 통합포털 PC 실행파일",
     "CompanyName": "(주)경덕농수산",
     "FileDescription": "경덕농수산 통합포털",
-    "FileVersion": "1.0.0.0",
+    "FileVersion": "1.1.0.0",
     "InternalName": "kdw-portal",
     "LegalCopyright": "(주)경덕농수산",
     "OriginalFilename": "kdw-portal.exe",
     "ProductName": "경덕농수산 통합포털",
-    "ProductVersion": "1.0.0.0"
+    "ProductVersion": "1.1.0.0"
   },
   "VarFileInfo": {
-    "Translation": { "LangID": "1033", "CharsetID": "1200" }
+    "Translation": {
+      "LangID": "1033",
+      "CharsetID": "1200"
+    }
   }
 }
